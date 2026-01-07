@@ -10,6 +10,10 @@ AWS.config.update({
 const ses = new AWS.SES({ apiVersion: '2010-12-01' });
 
 const sendEmail = async ({ to, subject, htmlBody, textBody }) => {
+  // If textBody is not provided, use a simple placeholder
+  // In production, provide explicit text versions of emails
+  const fallbackText = textBody || 'Please view this email in an HTML-enabled client.';
+  
   const params = {
     Destination: {
       ToAddresses: Array.isArray(to) ? to : [to],
@@ -22,9 +26,7 @@ const sendEmail = async ({ to, subject, htmlBody, textBody }) => {
         },
         Text: {
           Charset: 'UTF-8',
-          // Use provided textBody or a simple fallback
-          // For production, consider using html-to-text library for better conversion
-          Data: textBody || htmlBody.replace(/<[^>]*>?/gm, ''),
+          Data: fallbackText,
         },
       },
       Subject: {
@@ -60,11 +62,13 @@ const sendWelcomeEmail = async (email, username) => {
       </body>
     </html>
   `;
+  const textBody = `Welcome, ${username}!\n\nThank you for joining our platform. We're excited to have you on board.\n\nIf you have any questions, feel free to reach out to our support team.\n\nBest regards,\nThe Team`;
 
   return await sendEmail({
     to: email,
     subject,
     htmlBody,
+    textBody,
   });
 };
 
@@ -82,11 +86,13 @@ const sendPasswordResetEmail = async (email, resetToken) => {
       </body>
     </html>
   `;
+  const textBody = `Password Reset\n\nYou requested a password reset. Visit the following link to reset your password:\n\n${resetUrl}\n\nThis link will expire in 1 hour.\n\nIf you didn't request this, please ignore this email.`;
 
   return await sendEmail({
     to: email,
     subject,
     htmlBody,
+    textBody,
   });
 };
 
