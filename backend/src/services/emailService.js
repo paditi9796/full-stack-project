@@ -22,7 +22,9 @@ const sendEmail = async ({ to, subject, htmlBody, textBody }) => {
         },
         Text: {
           Charset: 'UTF-8',
-          Data: textBody || htmlBody.replace(/<[^>]*>/g, ''),
+          // Use provided textBody or a simple fallback
+          // For production, consider using html-to-text library for better conversion
+          Data: textBody || htmlBody.replace(/<[^>]*>?/gm, ''),
         },
       },
       Subject: {

@@ -28,9 +28,14 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      window.location.href = '/login';
+      // Clear auth data
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        // Use window.location.href for redirect to ensure full page reload
+        // This is intentional to clear all client-side state
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   }
